@@ -1,0 +1,34 @@
+#!/bin/bash
+set -e
+start_commit="master"
+
+# $1: filename
+get_matching_commit() {
+    files=""
+    for commit in $(git rev-list "$start_commit"..HEAD); do
+        for file in $(git diff-tree --no-commit-id --name-only "$commit"); do
+            files="${files}${file}#${commit}\n"
+        done
+    done
+
+    printf "$files" | grep "^${1}#" | cut -d "#" -f 2
+}
+
+fixup() {
+    for file in $(git diff --name-only); do
+        echo "file: ${file}"
+        commit=$(get_matching_commit "${file}")
+        echo "commit: ${commit}"
+        commit_count=$(printf "${commit}\n" | wc -l)
+        echo "commit count: ${commit_count}"
+        if [ "${commit_count}" = "1" ]; then
+            git add "${file}" && git commit --fixup "${commit}"
+        else
+            echo "${file} found more than one commit. This is not currently supported."
+            exit 1
+        fi
+    done
+
+    git rebase --autosquash -i "${start_commit}"
+}
+fixup
