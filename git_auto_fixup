@@ -19,7 +19,7 @@ fixup() {
         echo "file: ${file}"
         commit=$(get_matching_commit "${file}")
         echo "commit: ${commit}"
-        commit_count=$(printf "${commit}\n" | wc -l)
+        commit_count=$(printf "${commit}\n" | awk 'END{print NR}')
         echo "commit count: ${commit_count}"
         if [ "${commit_count}" = "1" ]; then
             git add "${file}" && git commit --fixup "${commit}"
