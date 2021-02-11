@@ -6,7 +6,7 @@ start_commit="master"
 get_matching_commit() {
     files=""
     for commit in $(git rev-list "$start_commit"..HEAD); do
-        for file in $(git diff-tree --no-commit-id --name-only "$commit"); do
+        for file in $(git diff-tree --no-commit-id --name-only -r "$commit"); do
             files="${files}${file}#${commit}\n"
         done
     done
